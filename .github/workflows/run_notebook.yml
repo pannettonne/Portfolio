@@ -1,1 +1,35 @@
+name: Ejecutar Notebook Diariamente
+
+# Se configura el workflow para que se ejecute de dos formas:
+# 1. De forma programada (schedule) a las 8:00 UTC cada día.
+# 2. Manualmente (workflow_dispatch).
+on:
+  schedule:
+    - cron: '30 15 * * *'  # Esto se traduce a 15:30 UTC, que es 16:30 CET
+  workflow_dispatch:
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Clonar el repositorio
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      # Paso 2: Configurar Python (usa la versión 3.x)
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Paso 3: Instalar las dependencias necesarias (en este caso, Papermill)
+      - name: Instalar dependencias
+        run: |
+          pip install papermill
+
+      # Paso 4: Ejecutar el Notebook usando Papermill
+      - name: Ejecutar Notebook
+        run: |
+          papermill LaSalle2.ipynb output.ipynb
 
