@@ -32,6 +32,7 @@ jobs:
           python -m ipykernel install --user
           pip install selenium
           pip install yagmail
+          pip install webdriver_manager
           pip install keyring
           pip install keyrings.alt
           pip install css_inline
