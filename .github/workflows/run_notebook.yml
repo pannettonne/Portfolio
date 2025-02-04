@@ -36,7 +36,7 @@ jobs:
           pip install css_inline
           sudo apt-get update
           sudo apt-get install -y chromium-chromedriver
-          sudo cp /usr/lib/chromium-browser/chromedriver /usr/bin/
+          sudo cp /usr/lib/chromium-browser/chromedriver /usr/bin/ || true
 
       # Paso 4: Ejecutar el Notebook usando Papermill
       - name: Ejecutar Notebook
