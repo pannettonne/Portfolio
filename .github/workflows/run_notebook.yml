@@ -28,6 +28,10 @@ jobs:
       - name: Instalar dependencias
         run: |
           pip install papermill
+          pip install selenium
+          pip install yagmail
+          pip install keyrings.alt
+          pip install css_inline
 
       # Paso 4: Ejecutar el Notebook usando Papermill
       - name: Ejecutar Notebook
