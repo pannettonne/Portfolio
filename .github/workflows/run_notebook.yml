@@ -28,6 +28,8 @@ jobs:
       - name: Instalar dependencias
         run: |
           pip install papermill
+          pip install ipykernel
+          python -m ipykernel install --user
           pip install selenium
           pip install yagmail
           pip install keyrings.alt
