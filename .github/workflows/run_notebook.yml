@@ -5,8 +5,9 @@ name: Ejecutar Notebook Diariamente
 # 2. Manualmente (workflow_dispatch).
 on:
   schedule:
-    - cron: '30 15 * * *'  # Esto se traduce a 15:30 UTC, que es 16:30 CET
-  workflow_dispatch:
+    - cron: '30 15 * * *'  # 15:30 UTC equivale a 16:30 CET (hora española en invierno)
+  workflow_dispatch: {}   # Se define como objeto vacío
+
 
 jobs:
   run-notebook:
