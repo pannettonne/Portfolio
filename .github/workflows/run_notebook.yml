@@ -3,9 +3,10 @@ name: Ejecutar Notebook Diariamente
 # Se configura el workflow para que se ejecute de dos formas:
 # 1. De forma programada (schedule) a las 8:00 UTC cada día.
 # 2. Manualmente (workflow_dispatch).
+#- cron: '20 15 * * *'  # 15:30 UTC equivale a 16:30 CET (hora española en invierno)
 on:
   schedule:
-    - cron: '20 15 * * *'  # 15:30 UTC equivale a 16:30 CET (hora española en invierno)
+    - cron: '30 14 * * *'  # 14:30 UTC = 16:30 CEST
   workflow_dispatch: {}   # Se define como objeto vacío
 
 
