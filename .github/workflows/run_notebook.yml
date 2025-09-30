@@ -43,7 +43,7 @@ jobs:
       # Si tu .ipynb está en la raíz del repo:
       - name: Ejecutar Notebook con Papermill (ver prints en logs)
         run: |
-          papermill LaSalle2.ipynb LaSalle2_ejecutado.ipynb --log-output --progress-bar False
+          papermill LaSalle2.ipynb LaSalle2_ejecutado.ipynb --log-output --no-progress-bar
 
       - name: Exportar salida a HTML (opcional)
         run: |
