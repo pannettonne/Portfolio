@@ -45,5 +45,5 @@ jobs:
       # Paso 4: Ejecutar el Notebook usando Papermill
       - name: Ejecutar Notebook
         run: |
-          papermill LaSalle2.ipynb --log-output
+          papermill LaSalle2.ipynb output.ipynb --log-output --progress-bar False
 
