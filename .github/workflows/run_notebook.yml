@@ -1,49 +1,58 @@
 name: Ejecutar Notebook Diariamente
 
-# Se configura el workflow para que se ejecute de dos formas:
-# 1. De forma programada (schedule) a las 8:00 UTC cada día.
-# 2. Manualmente (workflow_dispatch).
-#- cron: '20 15 * * *'  # 15:30 UTC equivale a 16:30 CET (hora española en invierno)
 on:
   schedule:
     - cron: '30 14 * * *'  # 14:30 UTC = 16:30 CEST
-  workflow_dispatch: {}   # Se define como objeto vacío
-
+  workflow_dispatch: {}
 
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"   # imprime sin buffer (mejor para ver print en logs)
+      # Carga tus credenciales desde Secrets (no las hardcodees en el notebook)
+      MOODLE_USER: ${{ secrets.MOODLE_USER }}
+      MOODLE_PASS: ${{ secrets.MOODLE_PASS }}
+      GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
 
     steps:
-      # Paso 1: Clonar el repositorio
       - name: Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Paso 2: Configurar Python (usa la versión 3.x)
       - name: Configurar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
-      # Paso 3: Instalar las dependencias necesarias (en este caso, Papermill)
-      - name: Instalar dependencias
+      - name: Instalar Google Chrome (estable)
         run: |
-          pip install papermill
-          pip install ipykernel
-          python -m ipykernel install --user
-          pip install selenium
-          pip install yagmail
-          pip install webdriver_manager
-          pip install keyring
-          pip install keyrings.alt
-          pip install css_inline
-          pip install beautifulsoup4
           sudo apt-get update
-          sudo apt-get install -y chromium-chromedriver
-          sudo cp /usr/lib/chromium-browser/chromedriver /usr/bin/ || true
+          sudo apt-get install -y wget gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-linux.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
-      # Paso 4: Ejecutar el Notebook usando Papermill
-      - name: Ejecutar Notebook
+      - name: Instalar dependencias Python
         run: |
-          papermill LaSalle2.ipynb output.ipynb --log-output --progress-bar False
+          python -m pip install --upgrade pip
+          pip install papermill ipykernel nbconvert
+          pip install selenium webdriver-manager
+          pip install yagmail keyring keyrings.alt css_inline beautifulsoup4 premailer
 
+      # Si tu .ipynb está en la raíz del repo:
+      - name: Ejecutar Notebook con Papermill (ver prints en logs)
+        run: |
+          papermill LaSalle2.ipynb LaSalle2_ejecutado.ipynb --log-output --progress-bar False
+
+      - name: Exportar salida a HTML (opcional)
+        run: |
+          jupyter nbconvert --to html LaSalle2_ejecutado.ipynb
+
+      - name: Subir artefactos
+        uses: actions/upload-artifact@v4
+        with:
+          name: outputs
+          path: |
+            LaSalle2_ejecutado.ipynb
+            LaSalle2_ejecutado.html
