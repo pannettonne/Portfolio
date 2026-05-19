@@ -2,7 +2,7 @@ name: Ejecutar Notebook Diariamente
 
 on:
   schedule:
-    - cron: '30 14 * * *'  # 14:30 UTC = 16:30 CEST
+    - cron: '30 13 * * *'  # 14:30 UTC = 16:30 CEST
   workflow_dispatch: {}
 
 jobs:
