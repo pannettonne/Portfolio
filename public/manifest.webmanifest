@@ -1,0 +1,17 @@
+{
+  "name": "Mi Agenda Sallenet",
+  "short_name": "Agenda",
+  "description": "Consulta privada de la agenda escolar de Sallenet",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#183c68",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
