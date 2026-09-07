@@ -1,0 +1,202 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #14243a;
+  background: #f4f7fb;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 80% 0%, rgba(47,120,196,.14), transparent 34rem), #f4f7fb;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+.login-page, .app-shell {
+  min-height: 100vh;
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) 18px max(32px, env(safe-area-inset-bottom));
+}
+
+.login-page { display: grid; place-items: center; }
+
+.login-card {
+  width: min(440px, 100%);
+  background: rgba(255,255,255,.96);
+  border: 1px solid #dfe7f0;
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 22px 70px rgba(24,60,104,.14);
+}
+
+.logo {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #183c68;
+  color: white;
+  font-weight: 900;
+  font-size: 30px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: #6280a3;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+h1 { margin: 5px 0 8px; font-size: clamp(28px, 6vw, 38px); }
+.intro { color: #62748a; margin: 0 0 24px; line-height: 1.5; }
+form { display: grid; gap: 16px; }
+
+label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #ccd8e6;
+  border-radius: 14px;
+  padding: 14px 15px;
+  background: #fff;
+  color: #14243a;
+  outline: none;
+}
+
+input:focus {
+  border-color: #2f78c4;
+  box-shadow: 0 0 0 4px rgba(47,120,196,.12);
+}
+
+.primary, .refresh {
+  border: 0;
+  border-radius: 15px;
+  padding: 14px 18px;
+  background: #183c68;
+  color: #fff;
+  font-weight: 800;
+}
+
+.primary:disabled, .refresh:disabled { opacity: .6; cursor: default; }
+
+.error, .notice {
+  border-radius: 14px;
+  padding: 12px 14px;
+  line-height: 1.4;
+}
+
+.error { background: #fff0f0; color: #9d2929; border: 1px solid #ffd1d1; }
+.notice { background: #fff9e9; color: #725a15; border: 1px solid #f1dfa0; margin-bottom: 18px; }
+
+.privacy-note {
+  color: #7a8b9e;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 18px 0 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 8px 0 22px;
+}
+
+.topbar h1 { margin-bottom: 0; }
+
+.ghost {
+  border: 1px solid #ccd8e6;
+  color: #344c68;
+  background: rgba(255,255,255,.8);
+  padding: 9px 13px;
+  border-radius: 12px;
+}
+
+.tabs {
+  background: #e6edf5;
+  padding: 4px;
+  border-radius: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 22px;
+}
+
+.tabs button {
+  border: 0;
+  background: transparent;
+  padding: 11px;
+  border-radius: 11px;
+  font-weight: 800;
+  color: #5d7189;
+}
+
+.tabs button.active {
+  background: #fff;
+  color: #183c68;
+  box-shadow: 0 2px 10px rgba(24,60,104,.08);
+}
+
+.day { margin-bottom: 28px; }
+.day h2 { margin: 0 0 12px; font-size: 20px; }
+.cards { display: grid; gap: 11px; }
+
+.subject-card {
+  background: #fff;
+  border: 1px solid #dde6f0;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(24,60,104,.05);
+}
+
+.notes-card {
+  border-color: #eadcae;
+  background: #fffdf5;
+}
+
+.subject-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.field + .field { margin-top: 10px; }
+.field .label {
+  color: #6d8198;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.field p { margin: 4px 0 0; white-space: pre-wrap; line-height: 1.45; }
+
+.refresh {
+  position: sticky;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(24,60,104,.2);
+}
+
+.empty {
+  display: grid;
+  gap: 6px;
+  text-align: center;
+  background: #fff;
+  padding: 28px;
+  border-radius: 18px;
+  color: #60738a;
+  border: 1px solid #dde6f0;
+}
