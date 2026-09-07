@@ -1,0 +1,8 @@
+{
+  "framework": "vite",
+  "functions": {
+    "api/agenda.js": {
+      "maxDuration": 30
+    }
+  }
+}
