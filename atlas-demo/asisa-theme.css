@@ -93,3 +93,18 @@ input::placeholder{color:#90a5b6}
 .map-diagnostics-toggle{position:absolute;right:13px;top:131px;z-index:3;background:#fff;color:#38688d;border:1px solid #d2e3ef;border-radius:6px;padding:8px;font-size:11px;font-weight:700;cursor:pointer}
 .map-diagnostics-pane{position:absolute;top:169px;right:13px;z-index:6;white-space:pre-line;background:#fffffffa;border:1px solid #d1e3f1;border-radius:9px;padding:13px;color:#285c84;box-shadow:0 9px 28px #183f6925;max-width:245px;font-size:11px;line-height:1.8;pointer-events:auto}
 .map-diagnostics-toggle:hover,.map-style-toggle:hover{border-color:#3088c3;background:#eaf6ff}
+/* Robust map fallback + native diagnostics; these work without JS click handlers. */
+.map-preloader{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none;opacity:1;transition:opacity .7s ease;background:#e7f2fa}
+.map{z-index:0}
+.map-label,.map-legend{z-index:3}
+.map-health{z-index:5}
+.map-style-toggle{z-index:6}
+.map-diagnostics-native{position:absolute;right:12px;top:132px;z-index:35;max-width:min(340px,90%);border:1px solid #c4d9ed;background:#fff;border-radius:8px;box-shadow:0 3px 16px #0b43651c;color:#244f77;font-size:12px}
+.map-diagnostics-native summary{list-style:none;cursor:pointer;font-weight:800;padding:10px 13px;user-select:none}
+.map-diagnostics-native summary::-webkit-details-marker{display:none}
+.map-diagnostics-native[open]{min-width:min(320px,85vw);box-shadow:0 8px 25px #11456b30}
+.map-diagnostics-static{border-top:1px solid #d7e5f0;padding:13px;display:grid;gap:12px;line-height:1.55}
+.map-diagnostics-static b{color:#15558d}
+.map-diagnostics-status{overflow-wrap:anywhere;color:#365d80}
+.map-diagnostics-hint{color:#68849a;font-size:10px}
+.map-retry{padding:10px 12px;color:#fff;border:0;background:#1568ab;border-radius:7px;font-weight:700;cursor:pointer}
