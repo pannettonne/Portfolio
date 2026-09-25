@@ -3,5 +3,11 @@
   "buildCommand": "npm --prefix atlas-demo run build",
   "outputDirectory": "atlas-demo/dist",
   "installCommand": "npm --prefix atlas-demo install --no-audit --no-fund",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/mapdata/:path*",
+      "destination": "https://tiles.openfreemap.org/:path*"
+    }
+  ]
 }
