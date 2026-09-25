@@ -1,5 +1,20 @@
 (function(){
 'use strict';
+var atlasTraceSession='atlas-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+function atlasTrace(event,detail){
+  var payload={session:atlasTraceSession,event:event,detail:detail||{},href:location.href,ts:new Date().toISOString()};
+  try{
+    if(navigator.sendBeacon){
+      var blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+      navigator.sendBeacon('/api/map-log',blob);
+    }else{
+      fetch('/api/map-log',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload),keepalive:true}).catch(function(){});
+    }
+  }catch(e){}
+}
+window.addEventListener('error',function(e){atlasTrace('window.error',{message:e.message,source:e.filename,line:e.lineno,col:e.colno})});
+window.addEventListener('unhandledrejection',function(e){atlasTrace('window.unhandledrejection',{reason:String(e.reason&&e.reason.message||e.reason)})});
+atlasTrace('app.script.loaded',{maplibre:!!window.maplibregl,deck:!!window.deck,webgl:!!window.WebGLRenderingContext});
 var P=[
 {id:1,name:'Hospital Metropolitano Norte',group:'Grupo Salud Norte',type:'Hospital',city:'Madrid',region:'Madrid',lat:40.492,lng:-3.695,specialties:38,acts:185400,cost:26.8,occupancy:87,quality:94,waiting:9,contract:'2027-05-31',trend:8,dependency:23,code:'MAD-001',services:['Urgencias 24 h','Cirugía','Radiodiagnóstico','Cardiología','Traumatología','Oncología']},
 {id:2,name:'Centro Médico Castellana',group:'Grupo Salud Norte',type:'Centro médico',city:'Madrid',region:'Madrid',lat:40.466,lng:-3.69,specialties:29,acts:103250,cost:10.7,occupancy:81,quality:91,waiting:7,contract:'2027-11-30',trend:11,dependency:14,code:'MAD-002',services:['Consultas externas','Diagnóstico','Laboratorio','Dermatología']},
@@ -42,7 +57,7 @@ function mapHTML(id,tall){return '<div class="map-wrap '+(tall?'tall':'')+'"><im
 function fallback(el){el.innerHTML='<div class="map-fallback"><svg viewBox="0 0 500 320"><defs><radialGradient id="gl"><stop stop-color="#5be9d1" stop-opacity=".4"/><stop offset="1" stop-color="#5be9d1" stop-opacity="0"/></radialGradient></defs><path fill="#143a4a" stroke="#6addca" stroke-width="2" d="M92 72L170 56 225 63 275 52 329 66 388 86 423 107 400 144 372 151 359 192 332 226 280 249 244 274 196 251 149 236 112 206 88 162 100 125Z"/><g fill="url(#gl)"><circle cx="249" cy="146" r="58"/><circle cx="374" cy="116" r="44"/><circle cx="320" cy="195" r="35"/><circle cx="161" cy="210" r="42"/></g><g fill="#a9ffee" stroke="#6af1cb"><circle cx="249" cy="146" r="5"/><circle cx="374" cy="116" r="5"/><circle cx="320" cy="195" r="5"/><circle cx="161" cy="210" r="5"/><circle cx="209" cy="84" r="4"/></g><g stroke="#60d8d1" fill="none" stroke-dasharray="4 5"><path d="M249 146Q315 73 374 116M249 146Q280 145 320 195M249 146Q164 122 161 210M249 146Q221 110 209 84"/></g><text x="249" y="133" fill="#e8fff9" font-size="11" text-anchor="middle">Madrid</text><text x="374" y="104" fill="#e8fff9" font-size="11" text-anchor="middle">Barcelona</text><text x="320" y="183" fill="#e8fff9" font-size="11" text-anchor="middle">Valencia</text><text x="161" y="198" fill="#e8fff9" font-size="11" text-anchor="middle">Sevilla</text><text x="250" y="301" fill="#9bc8d5" font-size="11" text-anchor="middle">Vista esquemática de respaldo · mapa en vivo no disponible</text></svg></div>'}
 function renderNav(){$('nav').innerHTML=nav.map(function(x){return '<button class="nav-item '+(state.view===x[0]?'active':'')+'" data-go="'+x[0]+'"><span class="nav-icon">'+x[1]+'</span>'+x[2]+'</button>'}).join('');$('section-name').textContent=names[state.view]}
 function go(v){state.view=v;render();document.querySelector('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
-function render(){renderNav();if(state.map){try{state.map.remove()}catch(e){}state.map=null;state.overlay=null}var views={dashboard:dashboard,territory:territory,network:network,providers:providers,coverage:coverage,scenarios:scenario,insights:insights,ipa:ipa};$('page').innerHTML=views[state.view]();document.querySelectorAll('[data-go]').forEach(function(el){el.addEventListener('click',function(){go(el.dataset.go)})});bindPage();if(['dashboard','territory','network','coverage','scenarios'].indexOf(state.view)>-1){var mapId=state.view==='dashboard'?'map-dash':state.view==='territory'?'map-ter':state.view==='network'?'map-net':state.view==='coverage'?'map-cov':'map-sim';var start=function(){if($(mapId)&&!state.map)initMap(mapId)};if(window.requestAnimationFrame)requestAnimationFrame(function(){requestAnimationFrame(start)});else setTimeout(start,40);setTimeout(start,500)}}
+function render(){atlasTrace('render.start',{view:state.view,hasMap:!!state.map});renderNav();if(state.map){try{state.map.remove()}catch(e){}state.map=null;state.overlay=null}var views={dashboard:dashboard,territory:territory,network:network,providers:providers,coverage:coverage,scenarios:scenario,insights:insights,ipa:ipa};$('page').innerHTML=views[state.view]();document.querySelectorAll('[data-go]').forEach(function(el){el.addEventListener('click',function(){go(el.dataset.go)})});bindPage();if(['dashboard','territory','network','coverage','scenarios'].indexOf(state.view)>-1){var mapId=state.view==='dashboard'?'map-dash':state.view==='territory'?'map-ter':state.view==='network'?'map-net':state.view==='coverage'?'map-cov':'map-sim';var start=function(){if($(mapId)&&!state.map)initMap(mapId)};if(window.requestAnimationFrame)requestAnimationFrame(function(){requestAnimationFrame(start)});else setTimeout(start,40);setTimeout(start,500)}}
 function dashboard(){return head('STRATEGIC OVERVIEW','Nuestra red asistencial, de un vistazo.','Visión integral de cobertura, actividad, proveedores y necesidades de planificación.', '<button class="outline" data-go="ipa">Ver IPA territorial →</button>')+
 '<div class="grid kpis">'+kpi('Asegurados en territorios piloto','2,78 M','↑ 8,2 % interanual')+kpi('Proveedores simulados',num(3586),'18 centros destacados')+kpi('Actividad anual','9,24 M','↑ 11,3 % interanual')+kpi('Cobertura objetivo','87,4 %','8 áreas de análisis','dim')+'</div>'+
 '<div class="grid layout-70">'+
@@ -276,7 +291,7 @@ function atlasDeckLayers(){
     new d.ScatterplotLayer({id:'atlas-main-points',data:main,getPosition:function(x){return x.position},getRadius:8000,getFillColor:[241,137,67,200],getLineColor:[255,255,255],stroked:true,pickable:true})
   ];
 }
-function atlasAddDeck(map){
+function atlasAddDeck(map){atlasTrace('deck.add.enter',{mapMatches:map===state.map,hasDeck:!!window.deck,hasOverlay:!!(window.deck&&window.deck.MapboxOverlay)});
   if(!map||state.map!==map||!window.deck||!window.deck.MapboxOverlay)return;
   try{
     if(!state.overlay){
@@ -294,8 +309,8 @@ function atlasAddDeck(map){
     // Base-map layers are retained until the 3D overlay is ready.
     if(map.getLayer('atlas-native-glow'))map.setPaintProperty('atlas-native-glow','circle-opacity',.04);
     if(map.getLayer('atlas-native-points'))map.setPaintProperty('atlas-native-points','circle-opacity',.36);
-    atlasStatus(atlasStyleIndex>=atlasStyleSources.length?'3D activo · cartografía local':'3D activo · cartografía detallada',false);
-  }catch(e){console.warn('ATLAS deck overlay:',e);atlasStatus('Mapa activo · capa 3D no disponible',true)}
+    atlasTrace('deck.add.ok',{layers:atlasDeckLayers().length});atlasStatus(atlasStyleIndex>=atlasStyleSources.length?'3D activo · cartografía local':'3D activo · cartografía detallada',false);
+  }catch(e){atlasTrace('deck.add.error',{message:String(e&&e.message||e),stack:String(e&&e.stack||'').slice(0,1000)});console.warn('ATLAS deck overlay:',e);atlasStatus('Mapa activo · capa 3D no disponible',true)}
 }
 function atlasAttachDeck(map){
   atlasLoadDeck().then(function(){if(map===state.map&&map.loaded())atlasAddDeck(map)})
@@ -312,23 +327,26 @@ function atlasLoadStyle(map,index){
   atlasStyleIndex=index;
   map.setStyle(atlasStyleSources[index].url);
 }
-function initMap(id){
+function initMap(id){atlasTrace('map.init.enter',{id:id,maplibre:!!window.maplibregl,deck:!!window.deck});
   var el=$(id);if(!el)return;
   var initialStatus=document.querySelector('.map-diagnostics-status');
   if(initialStatus)initialStatus.textContent='Inicializando MapLibre · '+(window.maplibregl?'Motor disponible':'Esperando el motor')+
     ' · WebGL: '+(window.maplibregl&&window.maplibregl.supported()?'Sí':'No');
   atlasStatus('Inicializando motor cartográfico…',false);
-  if(!window.maplibregl){
+  if(!window.maplibregl){atlasTrace('map.init.no_maplibre',{});
     el.innerHTML='<div class="map-error"><div><strong>Preparando el mapa interactivo de España…</strong><p>Cargando el motor cartográfico; no es necesario esperar para usar el resto de ATLAS.</p></div></div>';
     atlasLoadMaplibre().then(function(){if(el.isConnected&&$(id)===el)initMap(id)})
       .catch(function(e){console.warn('ATLAS MapLibre CDN:',e);if(el.isConnected){fallback(el);atlasStatus('Mapa esquemático · motor externo no disponible',true)}});
     return;
   }
-  if(!maplibregl.supported()){atlasStatus('Sin WebGL · mostrando mapa de España local',true);var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='WebGL deshabilitado en el navegador';return}
+  var supported=false;try{supported=maplibregl.supported()}catch(e){atlasTrace('map.webgl.supported.throw',{message:String(e&&e.message||e)});}
+  atlasTrace('map.webgl.supported',{supported:supported});
+  if(!supported){atlasStatus('Sin WebGL · mostrando mapa de España local',true);var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='WebGL deshabilitado en el navegador';return}
   try{
     el.innerHTML='';
     var t=T.find(function(x){return x.name===state.selectedCity})||T[0];
     var focused=state.view==='territory'||state.view==='coverage';
+    atlasTrace('map.constructor.before',{id:id,style:'local',focused:focused});
     var map=new maplibregl.Map({
       container:el,
       style:atlasLocalStyle,
@@ -337,7 +355,7 @@ function initMap(id){
       antialias:true,attributionControl:true,
       maxPitch:75
     });
-    state.map=map;state.overlay=null;
+    state.map=map;state.overlay=null;atlasTrace('map.constructor.after',{id:id});
     atlasStyleIndex=atlasStyleSources.length;
     atlasStatus('Activando mapa local de España…',false);
     var attempted=atlasStyleSources.length,rendered=false,timer=null,tileFailures=0,resourceProbe=null;
@@ -351,8 +369,8 @@ function initMap(id){
       startWatchdog();
     }
     var activatedStyleSerial=-1;
-    function activateMap(){
-      if(map!==state.map)return;
+    function activateMap(){atlasTrace('map.activate.called',{attempted:attempted,styleIndex:atlasStyleIndex});
+      if(map!==state.map){atlasTrace('map.activate.stale',{});return;}
       // activate once per style generation; setStyle() increments attempted/index
       var serial=attempted+'|'+atlasStyleIndex;
       if(activatedStyleSerial===serial)return;
@@ -364,8 +382,8 @@ function initMap(id){
         ' · Cartografía: '+(atlasStyleSources[atlasStyleIndex]?atlasStyleSources[atlasStyleIndex].name:'España local');
       clearTimeout(timer);clearTimeout(resourceProbe);rendered=true;tileFailures=0;
       try{map.resize()}catch(e){}
-      try{atlasDecorateMap(map)}catch(e){console.warn('Map layer setup:',e)}
-      if(window.deck)atlasAddDeck(map);else atlasStatus('Mapa visible · preparando capa 3D…',false);
+      try{atlasDecorateMap(map);atlasTrace('map.decorate.ok',{})}catch(e){console.warn('Map layer setup:',e);atlasTrace('map.decorate.error',{message:String(e&&e.message||e)})}
+      if(window.deck){atlasTrace('deck.present',{});atlasAddDeck(map)}else{atlasTrace('deck.missing',{});atlasStatus('Mapa visible · preparando capa 3D…',false);}
       atlasMapErrorDetail(map,'Mapa inicializado correctamente');
       if(attempted<atlasStyleSources.length){
         resourceProbe=setTimeout(function(){
@@ -374,8 +392,8 @@ function initMap(id){
         },14000);
       }
     }
-    map.on('style.load',activateMap);
-    map.on('load',activateMap);
+    map.on('style.load',function(){atlasTrace('map.event.style.load',{});activateMap()});
+    map.on('load',function(){atlasTrace('map.event.load',{});activateMap()});
     // Inline/local styles can become ready before listeners see the first event.
     setTimeout(function(){
       if(map!==state.map)return;
@@ -391,7 +409,7 @@ function initMap(id){
         atlasStatus('Mapa local visible · reintentando 3D…',true);
       }
     },2500);
-    map.on('error',function(e){
+    map.on('error',function(e){atlasTrace('map.event.error',{message:String(e&&e.error&&e.error.message||e&&e.error||e)});
       if(map!==state.map)return;
       var error=e&&e.error;console.warn('ATLAS map resource error:',error||e);var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='Error cartográfico: '+String(error&&error.message||'Error desconocido');atlasLastMapError=String(error&&error.message||'Fallo de carga del recurso cartográfico');
       tileFailures++;
@@ -414,7 +432,7 @@ function initMap(id){
       },11000);
     }
     startWatchdog();
-    atlasAttachDeck(map);
+    atlasTrace('deck.attach.request',{});atlasAttachDeck(map);
     // First paint is guaranteed to use our own Spanish geography and locally bundled WebGL.
     // Attempt the detailed basemap only after checking an actual Spanish vector tile
     // through Vercel. A blocked external service cannot blank the entire map.
@@ -435,7 +453,7 @@ function initMap(id){
           atlasLastMapError='OpenFreeMap a través de Vercel: '+e.message;
         }
       });
-  }catch(e){console.error('ATLAS map initialization:',e);atlasStatus('Mapa de España local · motor 3D no disponible',true);var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='Error del motor: '+String(e&&e.message||e)}
+  }catch(e){atlasTrace('map.init.catch',{message:String(e&&e.message||e),stack:String(e&&e.stack||'').slice(0,1200)});console.error('ATLAS map initialization:',e);atlasStatus('Mapa de España local · motor 3D no disponible',true);var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='Error del motor: '+String(e&&e.message||e)}
 }
 function updateLayers(){
   if(!state.map)return;
