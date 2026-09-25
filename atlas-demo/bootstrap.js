@@ -6,4 +6,3 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // Bundle with ATLAS: the map no longer needs third-party JS CDNs at runtime.
 window.maplibregl=maplibregl;
 window.deck={MapboxOverlay,ColumnLayer,ScatterplotLayer,ArcLayer,HeatmapLayer};
-import './app.js';
