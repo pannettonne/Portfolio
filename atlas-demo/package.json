@@ -16,5 +16,12 @@
   },
   "devDependencies": {
     "esbuild": "0.25.5"
+  },
+  "overrides": {
+    "@luma.gl/core": "9.1.5",
+    "@luma.gl/shadertools": "9.1.5",
+    "@luma.gl/engine": "9.1.5",
+    "@luma.gl/webgl": "9.1.5",
+    "@luma.gl/constants": "9.1.5"
   }
 }
