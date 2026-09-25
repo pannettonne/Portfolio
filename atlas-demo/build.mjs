@@ -1,6 +1,13 @@
 import * as esbuild from 'esbuild';
-import {mkdir,copyFile,writeFile} from 'node:fs/promises';
+import {mkdir,copyFile,writeFile,readFile} from 'node:fs/promises';
+import {feature} from 'topojson-client';
 await mkdir('dist',{recursive:true});
+const topology=JSON.parse(await readFile(new URL('./node_modules/world-atlas/countries-10m.json',import.meta.url),'utf8'));
+const countries=feature(topology,topology.objects.countries).features;
+const peninsula=countries.filter(f=>['724','620'].includes(String(f.id))||['Spain','Portugal'].includes(f.properties?.name));
+if(peninsula.length<2)throw new Error('The local map must contain Spain and Portugal');
+await writeFile('dist/iberia.geojson',JSON.stringify({type:'FeatureCollection',features:peninsula}));
+console.log('ATLAS: offline Iberian geographical contours built: '+peninsula.length+' countries');
 await esbuild.build({entryPoints:['bootstrap.js'],bundle:true,format:'iife',platform:'browser',target:['es2020'],outfile:'dist/bundle.js',minify:true,logLevel:'info',loader:{'.png':'dataurl','.svg':'dataurl'}});
 for(const name of ['index.html','style.css','asisa-theme.css'])await copyFile(name,'dist/'+name);
 console.log('ATLAS standalone map engine bundled with app.');
