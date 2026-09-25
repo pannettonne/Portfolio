@@ -42,7 +42,7 @@ function mapHTML(id,tall){return '<div class="map-wrap '+(tall?'tall':'')+'"><im
 function fallback(el){el.innerHTML='<div class="map-fallback"><svg viewBox="0 0 500 320"><defs><radialGradient id="gl"><stop stop-color="#5be9d1" stop-opacity=".4"/><stop offset="1" stop-color="#5be9d1" stop-opacity="0"/></radialGradient></defs><path fill="#143a4a" stroke="#6addca" stroke-width="2" d="M92 72L170 56 225 63 275 52 329 66 388 86 423 107 400 144 372 151 359 192 332 226 280 249 244 274 196 251 149 236 112 206 88 162 100 125Z"/><g fill="url(#gl)"><circle cx="249" cy="146" r="58"/><circle cx="374" cy="116" r="44"/><circle cx="320" cy="195" r="35"/><circle cx="161" cy="210" r="42"/></g><g fill="#a9ffee" stroke="#6af1cb"><circle cx="249" cy="146" r="5"/><circle cx="374" cy="116" r="5"/><circle cx="320" cy="195" r="5"/><circle cx="161" cy="210" r="5"/><circle cx="209" cy="84" r="4"/></g><g stroke="#60d8d1" fill="none" stroke-dasharray="4 5"><path d="M249 146Q315 73 374 116M249 146Q280 145 320 195M249 146Q164 122 161 210M249 146Q221 110 209 84"/></g><text x="249" y="133" fill="#e8fff9" font-size="11" text-anchor="middle">Madrid</text><text x="374" y="104" fill="#e8fff9" font-size="11" text-anchor="middle">Barcelona</text><text x="320" y="183" fill="#e8fff9" font-size="11" text-anchor="middle">Valencia</text><text x="161" y="198" fill="#e8fff9" font-size="11" text-anchor="middle">Sevilla</text><text x="250" y="301" fill="#9bc8d5" font-size="11" text-anchor="middle">Vista esquemática de respaldo · mapa en vivo no disponible</text></svg></div>'}
 function renderNav(){$('nav').innerHTML=nav.map(function(x){return '<button class="nav-item '+(state.view===x[0]?'active':'')+'" data-go="'+x[0]+'"><span class="nav-icon">'+x[1]+'</span>'+x[2]+'</button>'}).join('');$('section-name').textContent=names[state.view]}
 function go(v){state.view=v;render();document.querySelector('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
-function render(){renderNav();if(state.map){try{state.map.remove()}catch(e){}state.map=null;state.overlay=null}var views={dashboard:dashboard,territory:territory,network:network,providers:providers,coverage:coverage,scenarios:scenario,insights:insights,ipa:ipa};$('page').innerHTML=views[state.view]();document.querySelectorAll('[data-go]').forEach(function(el){el.addEventListener('click',function(){go(el.dataset.go)})});if(['dashboard','territory','network','coverage','scenarios'].indexOf(state.view)>-1){setTimeout(function(){initMap(state.view==='dashboard'?'map-dash':state.view==='territory'?'map-ter':state.view==='network'?'map-net':state.view==='coverage'?'map-cov':'map-sim')},30)}bindPage()}
+function render(){renderNav();if(state.map){try{state.map.remove()}catch(e){}state.map=null;state.overlay=null}var views={dashboard:dashboard,territory:territory,network:network,providers:providers,coverage:coverage,scenarios:scenario,insights:insights,ipa:ipa};$('page').innerHTML=views[state.view]();document.querySelectorAll('[data-go]').forEach(function(el){el.addEventListener('click',function(){go(el.dataset.go)})});bindPage();if(['dashboard','territory','network','coverage','scenarios'].indexOf(state.view)>-1){var mapId=state.view==='dashboard'?'map-dash':state.view==='territory'?'map-ter':state.view==='network'?'map-net':state.view==='coverage'?'map-cov':'map-sim';var start=function(){if($(mapId)&&!state.map)initMap(mapId)};if(window.requestAnimationFrame)requestAnimationFrame(function(){requestAnimationFrame(start)});else setTimeout(start,40);setTimeout(start,500)}}
 function dashboard(){return head('STRATEGIC OVERVIEW','Nuestra red asistencial, de un vistazo.','Visión integral de cobertura, actividad, proveedores y necesidades de planificación.', '<button class="outline" data-go="ipa">Ver IPA territorial →</button>')+
 '<div class="grid kpis">'+kpi('Asegurados en territorios piloto','2,78 M','↑ 8,2 % interanual')+kpi('Proveedores simulados',num(3586),'18 centros destacados')+kpi('Actividad anual','9,24 M','↑ 11,3 % interanual')+kpi('Cobertura objetivo','87,4 %','8 áreas de análisis','dim')+'</div>'+
 '<div class="grid layout-70">'+
@@ -317,7 +317,7 @@ function initMap(id){
   var initialStatus=document.querySelector('.map-diagnostics-status');
   if(initialStatus)initialStatus.textContent='Inicializando MapLibre · '+(window.maplibregl?'Motor disponible':'Esperando el motor')+
     ' · WebGL: '+(window.maplibregl&&window.maplibregl.supported()?'Sí':'No');
-  atlasStatus('Iniciando el mapa…',false);
+  atlasStatus('Inicializando motor cartográfico…',false);
   if(!window.maplibregl){
     el.innerHTML='<div class="map-error"><div><strong>Preparando el mapa interactivo de España…</strong><p>Cargando el motor cartográfico; no es necesario esperar para usar el resto de ATLAS.</p></div></div>';
     atlasLoadMaplibre().then(function(){if(el.isConnected&&$(id)===el)initMap(id)})
@@ -350,21 +350,47 @@ function initMap(id){
       atlasLoadStyle(map,attempted);
       startWatchdog();
     }
-    map.on('style.load',function(){
+    var activatedStyleSerial=-1;
+    function activateMap(){
       if(map!==state.map)return;
-      var preview=document.querySelector('.map-preloader');if(preview)preview.style.opacity='0';
-      var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='MapLibre iniciado · '+(window.deck?'deck.gl disponible':'deck.gl no disponible')+' · Cartografía: '+(atlasStyleSources[atlasStyleIndex]?atlasStyleSources[atlasStyleIndex].name:'Local');
+      // activate once per style generation; setStyle() increments attempted/index
+      var serial=attempted+'|'+atlasStyleIndex;
+      if(activatedStyleSerial===serial)return;
+      activatedStyleSerial=serial;
+      var preview=document.querySelector('.map-preloader');
+      if(preview){preview.classList.add('map-preloader-ready');preview.style.pointerEvents='none'}
+      var status=document.querySelector('.map-diagnostics-status');
+      if(status)status.textContent='MapLibre activo · '+(window.deck?'deck.gl disponible':'deck.gl no disponible')+
+        ' · Cartografía: '+(atlasStyleSources[atlasStyleIndex]?atlasStyleSources[atlasStyleIndex].name:'España local');
       clearTimeout(timer);clearTimeout(resourceProbe);rendered=true;tileFailures=0;
+      try{map.resize()}catch(e){}
       try{atlasDecorateMap(map)}catch(e){console.warn('Map layer setup:',e)}
-      if(window.deck)atlasAddDeck(map);else atlasStatus('Mapa disponible · preparando 3D…',false);
-      atlasMapErrorDetail(map,'El mapa base ha inicializado');
+      if(window.deck)atlasAddDeck(map);else atlasStatus('Mapa visible · preparando capa 3D…',false);
+      atlasMapErrorDetail(map,'Mapa inicializado correctamente');
       if(attempted<atlasStyleSources.length){
         resourceProbe=setTimeout(function(){
           if(map!==state.map||!map.areTilesLoaded)return;
           if(!map.areTilesLoaded()){console.warn('ATLAS: basemap tiles timed out');failover('teselas')}
         },14000);
       }
-    });
+    }
+    map.on('style.load',activateMap);
+    map.on('load',activateMap);
+    // Inline/local styles can become ready before listeners see the first event.
+    setTimeout(function(){
+      if(map!==state.map)return;
+      try{if(map.isStyleLoaded&&map.isStyleLoaded())activateMap()}catch(e){}
+      try{map.resize()}catch(e){}
+    },250);
+    setTimeout(function(){
+      if(map!==state.map)return;
+      if(!rendered){
+        try{map.resize()}catch(e){}
+        var status=document.querySelector('.map-diagnostics-status');
+        if(status)status.textContent='El motor existe pero el evento de mapa no ha confirmado carga. Manteniendo mapa local y reintentando.';
+        atlasStatus('Mapa local visible · reintentando 3D…',true);
+      }
+    },2500);
     map.on('error',function(e){
       if(map!==state.map)return;
       var error=e&&e.error;console.warn('ATLAS map resource error:',error||e);var status=document.querySelector('.map-diagnostics-status');if(status)status.textContent='Error cartográfico: '+String(error&&error.message||'Error desconocido');atlasLastMapError=String(error&&error.message||'Fallo de carga del recurso cartográfico');
