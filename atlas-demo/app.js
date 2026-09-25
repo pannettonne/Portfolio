@@ -164,6 +164,7 @@ var atlasLocalStyle={
     {id:'atlas-land-line',type:'line',source:'atlas-outline',paint:{'line-color':'#79abc8','line-width':1.5}}
   ]
 };
+atlasLocalStyle.sources['atlas-outline'].data='./iberia.geojson';
 function atlasLoadScript(urls,globalName){
   if(window[globalName])return Promise.resolve();
   return new Promise(function(resolve,reject){
@@ -285,7 +286,7 @@ function atlasAddDeck(map){
     // Base-map layers are retained until the 3D overlay is ready.
     if(map.getLayer('atlas-native-glow'))map.setPaintProperty('atlas-native-glow','circle-opacity',.04);
     if(map.getLayer('atlas-native-points'))map.setPaintProperty('atlas-native-points','circle-opacity',.36);
-    atlasStatus(atlasStyleIndex>=atlasStyleSources.length?'3D activo · contorno local':'3D activo · MapLibre + deck.gl',atlasStyleIndex>=atlasStyleSources.length);
+    atlasStatus(atlasStyleIndex>=atlasStyleSources.length?'3D activo · cartografía local':'3D activo · cartografía detallada',false);
   }catch(e){console.warn('ATLAS deck overlay:',e);atlasStatus('Mapa activo · capa 3D no disponible',true)}
 }
 function atlasAttachDeck(map){
@@ -318,14 +319,16 @@ function initMap(id){
     var focused=state.view==='territory'||state.view==='coverage';
     var map=new maplibregl.Map({
       container:el,
-      style:atlasStyleSources[0].url,
+      style:atlasLocalStyle,
       center:focused?[t.lon,t.lat]:[-3.8,40.25],
       zoom:focused?8:5.15,pitch:focused?42:56,bearing:-8,
       antialias:true,attributionControl:true,
       maxPitch:75
     });
     state.map=map;state.overlay=null;
-    var attempted=0,rendered=false,timer=null,tileFailures=0,resourceProbe=null;
+    atlasStyleIndex=atlasStyleSources.length;
+    atlasStatus('Activando mapa local de España…',false);
+    var attempted=atlasStyleSources.length,rendered=false,timer=null,tileFailures=0,resourceProbe=null;
     map.addControl(new maplibregl.NavigationControl({visualizePitch:true,showCompass:true}),'top-right');
     function failover(reason){
       if(map!==state.map||attempted>=atlasStyleSources.length)return;
@@ -372,6 +375,26 @@ function initMap(id){
     }
     startWatchdog();
     atlasAttachDeck(map);
+    // First paint is guaranteed to use our own Spanish geography and locally bundled WebGL.
+    // Attempt the detailed basemap only after checking an actual Spanish vector tile
+    // through Vercel. A blocked external service cannot blank the entire map.
+    var controller=typeof AbortController!=='undefined'?new AbortController():null;
+    var preflightTimeout=setTimeout(function(){if(controller)controller.abort()},8500);
+    fetch('/mapdata/planet/latest/5/15/12.pbf',{signal:controller?controller.signal:undefined})
+      .then(function(r){if(!r.ok)throw new Error('Tile HTTP '+r.status);return r.arrayBuffer()})
+      .then(function(data){
+        clearTimeout(preflightTimeout);
+        if(data.byteLength<80)throw new Error('Empty vector tile');
+        if(map===state.map)map.__atlasSetStyle(0);
+      })
+      .catch(function(e){
+        clearTimeout(preflightTimeout);
+        if(map===state.map){
+          console.warn('External tiles unavailable, offline map remains visible:',e);
+          atlasStatus('Mapa geográfico local · 3D activo',false);
+          atlasLastMapError='OpenFreeMap a través de Vercel: '+e.message;
+        }
+      });
   }catch(e){console.error('ATLAS map initialization:',e);fallback(el);atlasStatus('Vista alternativa · error WebGL',true)}
 }
 function updateLayers(){
