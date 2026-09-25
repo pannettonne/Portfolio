@@ -122,6 +122,31 @@ var atlasStyleSources=[
   {name:'CARTO · Positron',url:'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'},
   {name:'MapLibre · World',url:'https://demotiles.maplibre.org/style.json'}
 ];
+/* Same-origin cartography: Vercel proxies OpenFreeMap instead of the browser calling it. */
+var atlasProxyRoot=window.location.origin+'/mapdata';
+var atlasProxyStyle={
+  version:8,name:'ATLAS · ASISA corporate map',
+  glyphs:atlasProxyRoot+'/fonts/{fontstack}/{range}.pbf',
+  sources:{
+    openmaptiles:{type:'vector',tiles:[atlasProxyRoot+'/planet/latest/{z}/{x}/{y}.pbf'],minzoom:0,maxzoom:14},
+    relief:{type:'raster',tiles:[atlasProxyRoot+'/natural_earth/ne2sr/{z}/{x}/{y}.png'],tileSize:256,maxzoom:6}
+  },
+  layers:[
+    {id:'atlas-proxy-background',type:'background',paint:{'background-color':'#dceef7'}},
+    {id:'atlas-proxy-relief',type:'raster',source:'relief',maxzoom:7,paint:{'raster-opacity':.42}},
+    {id:'atlas-proxy-land',type:'fill',source:'openmaptiles','source-layer':'landcover',paint:{'fill-color':'#edf5ec','fill-opacity':.76}},
+    {id:'atlas-proxy-parks',type:'fill',source:'openmaptiles','source-layer':'park',paint:{'fill-color':'#d9eddd'}},
+    {id:'atlas-proxy-urban',type:'fill',source:'openmaptiles','source-layer':'landuse',filter:['in',['get','class'],['literal',['residential','commercial','industrial']]],paint:{'fill-color':'#e6eaf1','fill-opacity':.58}},
+    {id:'atlas-proxy-water',type:'fill',source:'openmaptiles','source-layer':'water',paint:{'fill-color':'#b3d8ef'}},
+    {id:'atlas-proxy-waterway',type:'line',source:'openmaptiles','source-layer':'waterway',paint:{'line-color':'#93c9e6','line-width':['interpolate',['linear'],['zoom'],4,.25,13,2]}},
+    {id:'atlas-proxy-boundaries',type:'line',source:'openmaptiles','source-layer':'boundary',filter:['<=',['get','admin_level'],4],paint:{'line-color':'#8eaac0','line-dasharray':[3,2],'line-width':1}},
+    {id:'atlas-proxy-highways',type:'line',source:'openmaptiles','source-layer':'transportation',filter:['in',['get','class'],['literal',['motorway','trunk','primary']]],paint:{'line-color':'#ecbc7c','line-width':['interpolate',['linear'],['zoom'],5,.45,13,5]}},
+    {id:'atlas-proxy-road',type:'line',source:'openmaptiles','source-layer':'transportation',filter:['in',['get','class'],['literal',['secondary','tertiary','minor','residential']]],minzoom:8,paint:{'line-color':'#f8faff','line-width':['interpolate',['linear'],['zoom'],8,.4,14,3]}},
+    {id:'atlas-proxy-buildings',type:'fill-extrusion',source:'openmaptiles','source-layer':'building',minzoom:13,paint:{'fill-extrusion-color':'#8fb9d5','fill-extrusion-height':['coalesce',['to-number',['get','render_height']],['to-number',['get','height']],9],'fill-extrusion-base':['coalesce',['to-number',['get','render_min_height']],0],'fill-extrusion-opacity':.62}},
+    {id:'atlas-proxy-city-labels',type:'symbol',source:'openmaptiles','source-layer':'place',filter:['in',['get','class'],['literal',['city','town','village']]],layout:{'text-field':['coalesce',['get','name:es'],['get','name']],'text-font':['Open Sans Regular'],'text-size':['interpolate',['linear'],['zoom'],4,10,9,15,13,17],'text-max-width':8},paint:{'text-color':'#244b6b','text-halo-color':'#f5fbfe','text-halo-width':1.6}}
+  ]
+};
+atlasStyleSources.unshift({name:'ATLAS · cartografía corporativa',url:atlasProxyStyle});
 var atlasLocalCoast=[
 [-9.29,43.13],[-9,43.36],[-8.4,43.4],[-7.2,43.73],[-6.1,43.61],[-5.3,43.55],[-4.4,43.47],[-3.4,43.48],[-2.1,43.36],[-1.78,43.38],[-1.4,43.08],[-.7,42.84],[.6,42.72],[1.4,42.62],[1.9,42.45],[2.48,42.43],[3.2,42.35],[3.32,41.9],[2.84,41.67],[2.3,41.45],[.95,40.79],[.18,40.03],[-.34,39.46],[-.22,38.75],[-.69,37.97],[-1.41,37.42],[-1.91,36.99],[-2.45,36.73],[-3.52,36.72],[-4.45,36.71],[-5.35,36.16],[-5.61,36.03],[-6.1,36.22],[-6.39,36.81],[-6.95,37.16],[-7.43,37.19],[-7.52,37.55],[-7.16,38.1],[-7.04,38.87],[-7.03,39.67],[-6.85,40.03],[-6.92,40.35],[-6.78,41.04],[-6.59,41.97],[-7.18,41.87],[-7.42,41.82],[-8.16,41.82],[-8.75,41.9],[-8.88,42.25],[-9.15,42.72]
 ];
