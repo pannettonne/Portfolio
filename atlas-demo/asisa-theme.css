@@ -108,3 +108,12 @@ input::placeholder{color:#90a5b6}
 .map-diagnostics-status{overflow-wrap:anywhere;color:#365d80}
 .map-diagnostics-hint{color:#68849a;font-size:10px}
 .map-retry{padding:10px 12px;color:#fff;border:0;background:#1568ab;border-radius:7px;font-weight:700;cursor:pointer}
+
+/* Map layering fix: the geographic preview is background, never a cover over WebGL. */
+.map-wrap{position:relative}
+.map-preloader{z-index:0!important;opacity:1!important;filter:saturate(.9)}
+.map{position:absolute!important;inset:0!important;z-index:2!important}
+.map.maplibregl-map,.map .maplibregl-canvas-container,.map .maplibregl-canvas{z-index:2!important}
+.map-preloader-ready{opacity:.12!important;transition:opacity .65s ease}
+.map-label,.map-legend{z-index:8!important}
+.map-style-toggle,.map-diagnostics-native,.map-health{z-index:12!important}
