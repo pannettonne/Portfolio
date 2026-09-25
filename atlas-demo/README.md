@@ -47,3 +47,12 @@ Para obtener una URL de preview desde el proyecto Portfolio conectado a Vercel, 
 ## Alcance y limitaciones
 
 Los números de cobertura, renta, población, actividad y costes han sido inventados. Los nombres de centros y grupos de la prueba son ficticios. Los puntos usan coordenadas aproximadas de ciudades reales, sin indicar centros sanitarios concretos. El motor de simulación de la demo **no debe utilizarse para decisiones asistenciales o presupuestarias reales**.
+
+## Actualización de la presentación (diseño corporativo y mapas)
+
+- Tema visual azul/blanco inspirado en la identidad pública de ASISA, expresamente **no oficial**.
+- Cartografía principal: OpenFreeMap Liberty, con CARTO Positron y MapLibre Demo como alternativas automáticas. Si fallan los servicios externos, mapa vectorial simplificado en memoria.
+- MapLibre y deck.gl se cargan de forma independiente desde dos CDN alternativos. Si deck.gl no carga, se mantienen los puntos de MapLibre, la navegación y el mapa base.
+- Visualizaciones 3D con columnas de actividad, constelación sintética de ubicaciones, rutas y mapa de calor.
+- El visor tiene botones **Cambiar mapa** y **Estado técnico**. Si ves el mapa en blanco, abre Estado técnico e indica el estado de WebGL, librerías, proveedor y último error.
+- Para una futura versión sin servicios cartográficos externos, utilizar España en PMTiles alojada en un servidor que admita solicitudes HTTP Range y librerías empaquetadas localmente; la demo actual sigue necesitando acceso a los CDN para renderizar el 3D.
