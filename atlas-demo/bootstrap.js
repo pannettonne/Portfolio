@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import {MapboxOverlay} from '@deck.gl/mapbox';
 import {ColumnLayer,ScatterplotLayer,ArcLayer} from '@deck.gl/layers';
 import {HeatmapLayer} from '@deck.gl/aggregation-layers';
