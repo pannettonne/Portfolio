@@ -38,7 +38,7 @@ function card(title,sub,body,cls){return '<section class="card '+(cls||'')+'"><d
 function insight(icon,title,desc,note){return '<div class="insight"><div class="insight-icon">'+icon+'</div><div><b>'+title+'</b><p>'+desc+'</p>'+(note?'<small>'+note+'</small>':'')+'</div></div>'}
 function metric(k,v){return '<div class="metric-pair"><span>'+k+'</span><strong>'+v+'</strong></div>'}
 function barChart(values,labels){var max=Math.max.apply(null,values)*1.08;return '<div class="bar-chart">'+values.map(function(v,i){return '<div class="bar" title="'+labels[i]+': '+v+'" data-label="'+labels[i]+'" style="height:'+Math.max(5,v/max*100)+'%"></div>'}).join('')+'</div>'}
-function mapHTML(id,tall){return '<div class="map-wrap '+(tall?'tall':'')+'"><div class="map" id="'+id+'"></div><div class="map-label"><b>ATLAS · MAPA ASISTENCIAL</b><span>14 centros destacados · Datos ficticios</span></div><div class="map-legend">● Ubicaciones simuladas<br/>◢ Columnas: actividad anual<br/>⌁ Arcos: relaciones ilustrativas</div><div class="map-health" role="status">Preparando cartografía…</div></div>'}
+function mapHTML(id,tall){return '<div class="map-wrap '+(tall?'tall':'')+'"><div class="map" id="'+id+'"></div><div class="map-label"><b>ATLAS · MAPA ASISTENCIAL</b><span>14 centros destacados · Datos ficticios</span></div><div class="map-legend">● Ubicaciones simuladas<br/>◢ Columnas: actividad anual<br/>⌁ Arcos: relaciones ilustrativas</div><button type="button" class="map-style-toggle" title="Cambiar el proveedor de mapa base" data-basemap-cycle="1">◫ Cambiar mapa</button><div class="map-health" role="status">Preparando cartografía…</div></div>'}
 function fallback(el){el.innerHTML='<div class="map-fallback"><svg viewBox="0 0 500 320"><defs><radialGradient id="gl"><stop stop-color="#5be9d1" stop-opacity=".4"/><stop offset="1" stop-color="#5be9d1" stop-opacity="0"/></radialGradient></defs><path fill="#143a4a" stroke="#6addca" stroke-width="2" d="M92 72L170 56 225 63 275 52 329 66 388 86 423 107 400 144 372 151 359 192 332 226 280 249 244 274 196 251 149 236 112 206 88 162 100 125Z"/><g fill="url(#gl)"><circle cx="249" cy="146" r="58"/><circle cx="374" cy="116" r="44"/><circle cx="320" cy="195" r="35"/><circle cx="161" cy="210" r="42"/></g><g fill="#a9ffee" stroke="#6af1cb"><circle cx="249" cy="146" r="5"/><circle cx="374" cy="116" r="5"/><circle cx="320" cy="195" r="5"/><circle cx="161" cy="210" r="5"/><circle cx="209" cy="84" r="4"/></g><g stroke="#60d8d1" fill="none" stroke-dasharray="4 5"><path d="M249 146Q315 73 374 116M249 146Q280 145 320 195M249 146Q164 122 161 210M249 146Q221 110 209 84"/></g><text x="249" y="133" fill="#e8fff9" font-size="11" text-anchor="middle">Madrid</text><text x="374" y="104" fill="#e8fff9" font-size="11" text-anchor="middle">Barcelona</text><text x="320" y="183" fill="#e8fff9" font-size="11" text-anchor="middle">Valencia</text><text x="161" y="198" fill="#e8fff9" font-size="11" text-anchor="middle">Sevilla</text><text x="250" y="301" fill="#9bc8d5" font-size="11" text-anchor="middle">Vista esquemática de respaldo · mapa en vivo no disponible</text></svg></div>'}
 function renderNav(){$('nav').innerHTML=nav.map(function(x){return '<button class="nav-item '+(state.view===x[0]?'active':'')+'" data-go="'+x[0]+'"><span class="nav-icon">'+x[1]+'</span>'+x[2]+'</button>'}).join('');$('section-name').textContent=names[state.view]}
 function go(v){state.view=v;render();document.querySelector('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
@@ -106,7 +106,7 @@ function ipa(){return head('LIVING ASSISTANCE PLAN','El IPA ya no es un document
 '<button class="primary" id="new-ipa" style="margin-top:17px;width:100%">+ Nueva actuación</button>')+
 card('Ciclo de decisión','Trazabilidad desde el diagnóstico','<div class="timeline"><div class="timeline-item"><b>Diagnóstico territorial</b><small>Caracterizar cartera, demanda y cobertura</small></div><div class="timeline-item"><b>Necesidad documentada</b><small>Evidencias, impacto y objetivos medibles</small></div><div class="timeline-item"><b>Escenarios evaluados</b><small>Comparar alternativas de la red asistencial</small></div><div class="timeline-item"><b>Decisión y aprobación</b><small>Responsable, presupuesto y fecha objetivo</small></div><div class="timeline-item"><b>Seguimiento del impacto</b><small>Comprobar resultados observados frente a hipótesis</small></div></div>')+'</div>'+
 '<div style="margin-top:16px">'+card('El IPA como aplicación','Visión ejecutiva',insight('▣','Un único origen de información','El mapa, los proveedores, los análisis y los escenarios comparten el mismo modelo de datos.')+insight('◇','Versionado de decisiones','Cada actuación conserva el escenario y los indicadores en el momento de su aprobación.')+insight('↗','Informe cuando lo necesites','La exportación es una salida del sistema, no la finalidad de ATLAS.'))+'</div>'}
-function bindPage(){document.querySelectorAll('[data-layer]').forEach(function(el){el.addEventListener('click',function(){state.layer=el.dataset.layer;document.querySelectorAll('[data-layer]').forEach(function(e){e.classList.toggle('active',e===el)});updateLayers()})});var s=$('city-select');if(s)s.onchange=function(){state.selectedCity=s.value;render()};var mf=$('map-fly');if(mf)mf.onchange=function(){var t=T.find(function(x){return x.name===mf.value});if(t&&state.map)state.map.flyTo({center:[t.lon,t.lat],zoom:10,pitch:64,bearing:28,duration:1800})};var reset=$('map-reset');if(reset)reset.onclick=function(){if(state.map)state.map.flyTo({center:[-3.8,40.25],zoom:5.1,pitch:54,bearing:-8,duration:1500})};var q=$('provider-search');if(q)q.oninput=function(){state.search=q.value;refreshProviders()};var re=$('provider-region');if(re)re.onchange=function(){state.region=re.value;render()};var so=$('provider-sort');if(so)so.onchange=function(){state.sort=so.value;render()};document.querySelectorAll('[data-provider]').forEach(function(el){el.onclick=function(){state.selected=Number(el.dataset.provider);$('provider-detail').innerHTML=detail(P.find(function(p){return p.id===state.selected}));$('provider-detail').scrollIntoView({behavior:'smooth',block:'center'});$('provider-detail').querySelectorAll('[data-go]').forEach(function(a){a.onclick=function(){go(a.dataset.go)}})}});var ex=$('export-providers');if(ex)ex.onclick=exportProviders;var exp=$('export-ipa');if(exp)exp.onclick=exportIPA;var sc=$('sim-city');if(sc)sc.onchange=function(){scenarios.selected=sc.value;render()};document.querySelectorAll('[data-provider-change]').forEach(function(el){el.onclick=function(){scenarios.provider=Number(el.dataset.providerChange);render()}});[['capacity-range','capacity'],['tariff-range','tariff'],['growth-range','growth']].forEach(function(pair){var el=$(pair[0]);if(el){el.oninput=function(){var label=$(pair[1]+'-value');if(label)label.textContent=el.value+' %'};el.onchange=function(){scenarios[pair[1]]=Number(el.value);render()}}});var rs=$('reset-sim');if(rs)rs.onclick=function(){scenarios={provider:0,capacity:18,tariff:0,growth:6,selected:'Sevilla'};render()};var save=$('save-scenario');if(save)save.onclick=function(){var r=results();state.plan.push({title:'Escenario de red: cobertura '+r.cov+' %',territory:r.t.name,status:'En análisis',owner:'Planificación asistencial',priority:'Alta'});toast('Escenario incorporado al IPA');go('ipa')};document.querySelectorAll('[data-investigate]').forEach(function(el){el.onclick=function(){state.selectedCity=el.dataset.investigate;go('territory')}});var add=$('new-ipa');if(add)add.onclick=function(){var title=prompt('Título de la nueva actuación (demo)');if(title&&title.trim()){state.plan.push({title:title.trim().slice(0,120),territory:state.selectedCity,status:'Pendiente',owner:'Planificación asistencial',priority:'Media'});render();toast('Actuación creada en memoria para esta sesión')}}}
+function bindPage(){document.querySelectorAll('[data-basemap-cycle]').forEach(function(el){el.onclick=function(){if(state.map){atlasManualStyleIndex=(atlasStyleIndex+1)%(atlasStyleSources.length+1);atlasLoadStyle(state.map,atlasManualStyleIndex);toast('Cambiando cartografía…')}else toast('El mapa aún está iniciándose')}});document.querySelectorAll('[data-layer]').forEach(function(el){el.addEventListener('click',function(){state.layer=el.dataset.layer;document.querySelectorAll('[data-layer]').forEach(function(e){e.classList.toggle('active',e===el)});updateLayers()})});var s=$('city-select');if(s)s.onchange=function(){state.selectedCity=s.value;render()};var mf=$('map-fly');if(mf)mf.onchange=function(){var t=T.find(function(x){return x.name===mf.value});if(t&&state.map)state.map.flyTo({center:[t.lon,t.lat],zoom:10,pitch:64,bearing:28,duration:1800})};var reset=$('map-reset');if(reset)reset.onclick=function(){if(state.map)state.map.flyTo({center:[-3.8,40.25],zoom:5.1,pitch:54,bearing:-8,duration:1500})};var q=$('provider-search');if(q)q.oninput=function(){state.search=q.value;refreshProviders()};var re=$('provider-region');if(re)re.onchange=function(){state.region=re.value;render()};var so=$('provider-sort');if(so)so.onchange=function(){state.sort=so.value;render()};document.querySelectorAll('[data-provider]').forEach(function(el){el.onclick=function(){state.selected=Number(el.dataset.provider);$('provider-detail').innerHTML=detail(P.find(function(p){return p.id===state.selected}));$('provider-detail').scrollIntoView({behavior:'smooth',block:'center'});$('provider-detail').querySelectorAll('[data-go]').forEach(function(a){a.onclick=function(){go(a.dataset.go)}})}});var ex=$('export-providers');if(ex)ex.onclick=exportProviders;var exp=$('export-ipa');if(exp)exp.onclick=exportIPA;var sc=$('sim-city');if(sc)sc.onchange=function(){scenarios.selected=sc.value;render()};document.querySelectorAll('[data-provider-change]').forEach(function(el){el.onclick=function(){scenarios.provider=Number(el.dataset.providerChange);render()}});[['capacity-range','capacity'],['tariff-range','tariff'],['growth-range','growth']].forEach(function(pair){var el=$(pair[0]);if(el){el.oninput=function(){var label=$(pair[1]+'-value');if(label)label.textContent=el.value+' %'};el.onchange=function(){scenarios[pair[1]]=Number(el.value);render()}}});var rs=$('reset-sim');if(rs)rs.onclick=function(){scenarios={provider:0,capacity:18,tariff:0,growth:6,selected:'Sevilla'};render()};var save=$('save-scenario');if(save)save.onclick=function(){var r=results();state.plan.push({title:'Escenario de red: cobertura '+r.cov+' %',territory:r.t.name,status:'En análisis',owner:'Planificación asistencial',priority:'Alta'});toast('Escenario incorporado al IPA');go('ipa')};document.querySelectorAll('[data-investigate]').forEach(function(el){el.onclick=function(){state.selectedCity=el.dataset.investigate;go('territory')}});var add=$('new-ipa');if(add)add.onclick=function(){var title=prompt('Título de la nueva actuación (demo)');if(title&&title.trim()){state.plan.push({title:title.trim().slice(0,120),territory:state.selectedCity,status:'Pendiente',owner:'Planificación asistencial',priority:'Media'});render();toast('Actuación creada en memoria para esta sesión')}}}
 function refreshProviders(){var s=state.search;state.search=s;var p=$('page');var start=p.querySelector('.table-scroll');if(!start)return;var data=P.filter(function(x){return (state.region==='Todas'||x.region===state.region)&&(x.name+' '+x.city+' '+x.group+' '+x.code).toLowerCase().includes(s.toLowerCase())});var tbody=start.querySelector('tbody');tbody.innerHTML=data.map(function(x){return '<tr data-provider="'+x.id+'"><td><div class="provider-cell"><div class="provider-icon">✚</div><div><b>'+x.name+'</b><small>'+x.group+'</small></div></div></td><td>'+x.city+'</td><td>'+x.specialties+'</td><td>'+num(x.acts)+'</td><td>'+euro(x.cost)+'</td><td>'+x.occupancy+' %</td><td>'+x.dependency+' %</td><td>↗</td></tr>'}).join('');tbody.querySelectorAll('[data-provider]').forEach(function(el){el.onclick=function(){state.selected=Number(el.dataset.provider);$('provider-detail').innerHTML=detail(P.find(function(x){return x.id===state.selected}));$('provider-detail').scrollIntoView({behavior:'smooth'});$('provider-detail').querySelectorAll('[data-go]').forEach(function(a){a.onclick=function(){go(a.dataset.go)}})}})}
 function download(name,s,type){var b=new Blob([s],{type:type||'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
 function exportProviders(){var cols=['code','name','group','type','city','region','specialties','acts','cost','occupancy','quality','waiting','contract'];download('atlas-proveedores-demo.csv','\uFEFF'+cols.join(';')+'\n'+P.map(function(x){return cols.map(function(k){return '"'+String(x[k]).replace(/"/g,'""')+'"'}).join(';')}).join('\n'),'text/csv;charset=utf-8')}
@@ -116,7 +116,7 @@ function exportIPA(){download('atlas-ipa-demo.csv','\uFEFFActuación;Territorio;
    MapLibre initializes without waiting for deck.gl, with 3 cartography providers
    and a local inline geographic style as a last resort. */
 var atlasMaplibrePromise=null,atlasDeckPromise=null;
-var atlasStyleIndex=0;
+var atlasStyleIndex=0,atlasManualStyleIndex=0;
 var atlasStyleSources=[
   {name:'OpenFreeMap · Liberty',url:'https://tiles.openfreemap.org/styles/liberty'},
   {name:'CARTO · Positron',url:'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'},
@@ -178,6 +178,12 @@ function atlasLoadDeck(){
 function atlasStatus(label,warning){
   var e=document.querySelector('.map-health');
   if(e){e.textContent=label;e.classList.toggle('error',!!warning)}
+}
+function atlasMapErrorDetail(map,label){
+  var e=document.querySelector('.map-health');
+  if(!e)return;
+  e.title='Cartografía: '+(atlasStyleSources[atlasStyleIndex]&&atlasStyleSources[atlasStyleIndex].name||'local')+
+    ' · MapLibre: '+(!!window.maplibregl)+' · deck.gl: '+(!!window.deck)+' · '+label;
 }
 function atlasMapPoints(){
   var seed=12051;
@@ -261,6 +267,7 @@ function atlasAttachDeck(map){
 function atlasLoadStyle(map,index){
   if(map!==state.map)return;
   if(index>=atlasStyleSources.length){
+    atlasStyleIndex=index;
     atlasStatus('Cartografía local · sin teselas externas',true);
     map.setStyle(atlasLocalStyle);return;
   }
@@ -290,27 +297,44 @@ function initMap(id){
       maxPitch:75
     });
     state.map=map;state.overlay=null;
-    var attempted=0,settled=false,rendered=false,timer=null;
+    var attempted=0,rendered=false,timer=null,tileFailures=0,resourceProbe=null;
     map.addControl(new maplibregl.NavigationControl({visualizePitch:true,showCompass:true}),'top-right');
+    function failover(reason){
+      if(map!==state.map||attempted>=atlasStyleSources.length)return;
+      attempted++;rendered=false;tileFailures=0;
+      clearTimeout(timer);clearTimeout(resourceProbe);
+      atlasStatus('Cambiando de cartografía ('+reason+')…',true);
+      atlasLoadStyle(map,attempted);
+      startWatchdog();
+    }
     map.on('style.load',function(){
       if(map!==state.map)return;
-      clearTimeout(timer);rendered=true;settled=true;
+      clearTimeout(timer);clearTimeout(resourceProbe);rendered=true;tileFailures=0;
       try{atlasDecorateMap(map)}catch(e){console.warn('Map layer setup:',e)}
-      if(window.deck)atlasAddDeck(map);else atlasStatus('Mapa listo · cargando capas 3D…',false);
+      if(window.deck)atlasAddDeck(map);else atlasStatus('Mapa disponible · preparando 3D…',false);
+      atlasMapErrorDetail(map,'El mapa base ha inicializado');
+      if(attempted<atlasStyleSources.length){
+        resourceProbe=setTimeout(function(){
+          if(map!==state.map||!map.areTilesLoaded)return;
+          if(!map.areTilesLoaded()){console.warn('ATLAS: basemap tiles timed out');failover('teselas')}
+        },14000);
+      }
     });
     map.on('error',function(e){
       if(map!==state.map)return;
       var error=e&&e.error;console.warn('ATLAS map resource error:',error||e);
-      // Do not replace a rendered map for a single missing font/tile.
-      if(!rendered&&!settled){settled=true;clearTimeout(timer);atlasLoadStyle(map,++attempted);startWatchdog()}
+      tileFailures++;
+      if(!rendered&&tileFailures>=1)failover('estilo');
+      else if(rendered&&tileFailures>=4)failover('recursos');
+      else atlasMapErrorDetail(map,String(error&&error.message||'error de recurso'));
     });
     function startWatchdog(){
       clearTimeout(timer);
       timer=setTimeout(function(){
         if(map!==state.map||rendered)return;
-        settled=true;atlasLoadStyle(map,++attempted);
-        startWatchdog();
-      },9000);
+        if(attempted<atlasStyleSources.length)failover('tiempo de espera');
+        else{atlasStatus('Cartografía local activa',false)}
+      },11000);
     }
     startWatchdog();
     atlasAttachDeck(map);
