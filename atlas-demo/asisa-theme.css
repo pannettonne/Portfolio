@@ -90,3 +90,6 @@ input::placeholder{color:#90a5b6}
 .maplibregl-ctrl-attrib{font-size:9px!important}
 .asisa-link{color:#0f5c9c;font-weight:800}
 @media(max-width:760px){.sidebar{box-shadow:8px 0 30px #0e3c6840}.map-health{bottom:9px;right:9px}.map-legend{bottom:9px;max-width:60%}.login-form{min-height:560px}.page-head h1{font-size:24px}}
+.map-diagnostics-toggle{position:absolute;right:13px;top:131px;z-index:3;background:#fff;color:#38688d;border:1px solid #d2e3ef;border-radius:6px;padding:8px;font-size:11px;font-weight:700;cursor:pointer}
+.map-diagnostics-pane{position:absolute;top:169px;right:13px;z-index:6;white-space:pre-line;background:#fffffffa;border:1px solid #d1e3f1;border-radius:9px;padding:13px;color:#285c84;box-shadow:0 9px 28px #183f6925;max-width:245px;font-size:11px;line-height:1.8;pointer-events:auto}
+.map-diagnostics-toggle:hover,.map-style-toggle:hover{border-color:#3088c3;background:#eaf6ff}
