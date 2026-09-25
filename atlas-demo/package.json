@@ -1,0 +1,20 @@
+{
+  "name": "atlas-enterprise-demo",
+  "private": true,
+  "version": "1.1.0",
+  "description": "ATLAS spatial demo: self-bundled MapLibre and deck.gl",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "maplibre-gl": "4.7.1",
+    "@deck.gl/core": "9.1.5",
+    "@deck.gl/layers": "9.1.5",
+    "@deck.gl/aggregation-layers": "9.1.5",
+    "@deck.gl/mapbox": "9.1.5"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.5"
+  }
+}
